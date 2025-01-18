@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +7,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WebApi.Data;
 using WebApi.Domain;
+using WebApi.Interfaces;
+using WebApi.Services;
 using WebApi.Shared;
 
 namespace WebApi.Extensions;
@@ -91,5 +94,16 @@ public static class ConfigureServices
                     .AllowAnyMethod()
                     .AllowAnyHeader();
             }));
+    }
+
+    public static void ConfigureFeatures(this IServiceCollection services)
+    {
+        services.AddControllers()
+            .AddJsonOptions(options =>
+                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
+        services.AddLogging();
+
+        services.AddScoped<ITokenClaimsService, TokenClaimService>();
     }
 }

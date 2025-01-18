@@ -10,12 +10,7 @@ builder.Services.ConfigureAppDbContext(builder.Configuration);
 builder.Services.ConfigureIdentity();
 builder.Services.ConfigureSwaggerServices();
 builder.Services.ConfigureCorsPolicy();
-
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
-
-builder.Services.AddLogging();
+builder.Services.ConfigureFeatures();
 
 var app = builder.Build();
 
