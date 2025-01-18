@@ -1,0 +1,11 @@
+﻿services:
+  webapi:
+    image: webapi
+    build:
+      context: .
+      dockerfile: src/WebApi/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_URLS=http://+:80
+    ports:
+      - "5678:80"
