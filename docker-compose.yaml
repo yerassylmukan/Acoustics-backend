@@ -9,3 +9,15 @@
       - ASPNETCORE_URLS=http://+:80
     ports:
       - "5678:80"
+    depends_on:
+      - db
+  
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=KNKnu2rbsf8sii
+      - POSTGRES_DB=acoustics
+    ports:
+      - "5432:5432"
