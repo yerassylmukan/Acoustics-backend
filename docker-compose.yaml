@@ -21,3 +21,10 @@
       - POSTGRES_DB=acoustics
     ports:
       - "5432:5432"
+
+  proxy:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"

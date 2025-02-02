@@ -32,6 +32,8 @@ catch (Exception e)
     app.Logger.LogError(e, "An error occurred while seeding the database.");
 }
 
+app.MapGet("/", () => "Hello World!");
+
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors("CorsPolicy");

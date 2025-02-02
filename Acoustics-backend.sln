@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A202033B-5A85-469B-AC5E-06D52DE73EA5}"
 	ProjectSection(SolutionItems) = preProject
 		docker-compose.yaml = docker-compose.yaml
+		nginx.conf = nginx.conf
 	EndProjectSection
 EndProject
 Global
