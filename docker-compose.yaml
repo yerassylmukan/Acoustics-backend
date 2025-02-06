@@ -11,6 +11,8 @@
       - "5678:80"
     depends_on:
       - db
+      - caching
+      - proxy
   
   db:
     image: postgres:latest
@@ -21,6 +23,12 @@
       - POSTGRES_DB=acoustics
     ports:
       - "5432:5432"
+  
+  caching:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
 
   proxy:
     image: nginx:latest

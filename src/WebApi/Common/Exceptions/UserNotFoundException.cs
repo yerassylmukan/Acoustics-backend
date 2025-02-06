@@ -1,4 +1,4 @@
-namespace WebApi.Exceptions;
+namespace WebApi.Common.Exceptions;
 
 public class UserNotFoundException : Exception
 {

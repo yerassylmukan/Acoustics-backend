@@ -1,33 +1,26 @@
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using WebApi.Common;
+using WebApi.Common.Contracts;
 using WebApi.Data;
-using WebApi.Domain;
-using WebApi.Interfaces;
 using WebApi.Services;
-using WebApi.Shared;
 
 namespace WebApi.Extensions;
 
-public static class ConfigureServices
+public static class Dependencies
 {
-    public static void ConfigureAppDbContext(this IServiceCollection services, IConfiguration configuration)
+    public static void ConfigureServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
-    }
 
-    public static void ConfigureIdentity(this IServiceCollection services)
-    {
-        services.AddIdentity<ApplicationUser, IdentityRole>()
-            .AddEntityFrameworkStores<AppDbContext>()
-            .AddDefaultTokenProviders();
+        services.AddStackExchangeRedisCache(options => { options.Configuration = configuration["REDIS_CONNECTION"]; });
 
-        var key = Encoding.ASCII.GetBytes(JwtOptions.KEY);
+        var key = Encoding.ASCII.GetBytes(JwtOptions.JWT_SECRET_KEY);
         services.AddAuthentication(config =>
             {
                 config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -46,10 +39,17 @@ public static class ConfigureServices
                     ValidateAudience = false
                 };
             });
-    }
 
-    public static void ConfigureSwaggerServices(this IServiceCollection services)
-    {
+        services.AddControllers()
+            .AddJsonOptions(options =>
+                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
+        services.AddLogging();
+
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<ITokenClaimsService, TokenClaimService>();
+
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(c =>
         {
@@ -83,10 +83,7 @@ public static class ConfigureServices
                 }
             });
         });
-    }
 
-    public static void ConfigureCorsPolicy(this IServiceCollection services)
-    {
         services.AddCors(options =>
             options.AddPolicy("CorsPolicy", policyBuilder =>
             {
@@ -94,16 +91,5 @@ public static class ConfigureServices
                     .AllowAnyMethod()
                     .AllowAnyHeader();
             }));
-    }
-
-    public static void ConfigureFeatures(this IServiceCollection services)
-    {
-        services.AddControllers()
-            .AddJsonOptions(options =>
-                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
-
-        services.AddLogging();
-
-        services.AddScoped<ITokenClaimsService, TokenClaimService>();
     }
 }

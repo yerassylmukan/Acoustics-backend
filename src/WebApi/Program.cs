@@ -1,16 +1,10 @@
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Identity;
+using WebApi.Common.Contracts;
 using WebApi.Data;
-using WebApi.Domain;
 using WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.ConfigureAppDbContext(builder.Configuration);
-builder.Services.ConfigureIdentity();
-builder.Services.ConfigureSwaggerServices();
-builder.Services.ConfigureCorsPolicy();
-builder.Services.ConfigureFeatures();
+builder.Services.ConfigureServices(builder.Configuration);
 
 var app = builder.Build();
 
@@ -22,17 +16,14 @@ using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
 try
 {
-    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var dbContext = services.GetRequiredService<AppDbContext>();
-    await SeedData.SeedAsync(dbContext, userManager, roleManager);
+    var userRepository = services.GetRequiredService<IUserRepository>();
+    await SeedData.SeedAsync(dbContext, userRepository);
 }
 catch (Exception e)
 {
     app.Logger.LogError(e, "An error occurred while seeding the database.");
 }
-
-app.MapGet("/", () => "Hello World!");
 
 app.UseHttpsRedirection();
 app.UseRouting();

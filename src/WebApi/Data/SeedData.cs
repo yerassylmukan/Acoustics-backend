@@ -1,49 +1,52 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using WebApi.Common.Contracts;
 using WebApi.Domain;
 
 namespace WebApi.Data;
 
 public static class SeedData
 {
-    public static async Task SeedAsync(AppDbContext dbContext, UserManager<ApplicationUser> userManager,
-        RoleManager<IdentityRole> roleManager)
+    public static async Task SeedAsync(AppDbContext dbContext, IUserRepository userRepository)
     {
-        if (dbContext.Database.IsNpgsql()) dbContext.Database.Migrate();
-
-        await EnsureRoleExistsAsync(roleManager, "Admin");
-        await EnsureRoleExistsAsync(roleManager, "BasicUser");
-        await EnsureRoleExistsAsync(roleManager, "Anonymous");
-
-        var adminUserName = "admin@gmail.com";
-        var adminUser = new ApplicationUser
+        if (dbContext.Database.IsNpgsql())
         {
-            UserName = adminUserName,
-            Email = adminUserName
-        };
+            dbContext.Database.Migrate();
 
-        if (await userManager.FindByEmailAsync(adminUserName) == null)
-        {
-            await userManager.CreateAsync(adminUser, "Admin@24323skfnskn");
-            await userManager.AddToRoleAsync(adminUser, "Admin");
+            var adminPhoneNumber = "77789065778";
+            var admin = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = adminPhoneNumber,
+                PhoneNumber = adminPhoneNumber,
+                Name = "Admin",
+                PictuireUrl = "",
+                CreationDate = DateTime.Now,
+                Role = "Admin"
+            };
+
+            if (await userRepository.GetUserByUsername(admin.Username) == null)
+            {
+                dbContext.Users.Add(admin);
+                await dbContext.SaveChangesAsync();
+            }
+
+            var userPhoneNumber = "77764194585";
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = userPhoneNumber,
+                PhoneNumber = userPhoneNumber,
+                Name = "Krutoi User",
+                PictuireUrl = "",
+                CreationDate = DateTime.Now,
+                Role = "User"
+            };
+
+            if (await userRepository.GetUserByUsername(user.Username) == null)
+            {
+                dbContext.Users.Add(user);
+                await dbContext.SaveChangesAsync();
+            }
         }
-
-        var userUserName = "user@gmail.com";
-        var user = new ApplicationUser
-        {
-            UserName = userUserName,
-            Email = userUserName
-        };
-
-        if (await userManager.FindByEmailAsync(userUserName) == null)
-        {
-            await userManager.CreateAsync(user, "User@24323skfnskn");
-            await userManager.AddToRoleAsync(user, "BasicUser");
-        }
-    }
-
-    private static async Task EnsureRoleExistsAsync(RoleManager<IdentityRole> roleManager, string roleName)
-    {
-        if (!await roleManager.RoleExistsAsync(roleName)) await roleManager.CreateAsync(new IdentityRole(roleName));
     }
 }
